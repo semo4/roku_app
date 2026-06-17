@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="MainPage" extends="Scene">
+    <children>
+        <Rectangle
+            translation="[30,30]"
+            id="backgroundBottom"
+            color="0x00c996FF"
+            width="1220"
+            height="70"
+            opacity="0.5"
+            />
+        <LayoutGroup
+            id="navBar"
+            translation="[70, 50]"
+            layoutDirection="horiz"
+            itemSpacings="[40]"
+        >
+            <Label id="home" text="Home" color="0xFFFFFFFF"/>
+            <Label id="blogs" text="Blogs" color="0x000000FF"/>
+            <Label id="youtube" text="YouTube" color="0x000000FF"/>
+        
+        </LayoutGroup>
+    </children>
+    <script type="text/brightscript">
+        <![CDATA[
+            
+        function init()
+            m.navIndex = 0
+            m.top.setFocus(true)
+            m.navItems = [
+                m.top.findNode("home"),
+                m.top.findNode("blogs"),
+                m.top.findNode("youtube")
+            ]
+
+            for each item in m.navItems
+                item.font.size = 26
+            end for
+
+            m.scrollContainer = m.top.createChild("Group")
+            m.scrollContainer.translation = [30, 120]
+            m.scrollContainer.clippingRect = [0, 0, 1220, 960]
+
+            m.CardItem = m.scrollContainer.createChild("CardItemMain")
+            m.CardItem.translation = [0, 0]
+
+            m.scrollY = 0
+            m.scrollStep = 80
+        
+            highlightNavItem()
+
+            m.blogsApiTask = CreateObject("roSGNode", "BlogsApiTask")
+            m.blogsApiTask.observeField("result", "onBlogsApiResult")
+            m.blogsApiTask.apiUrl = "https://opencollective.com/babel/members/all.json?TierId=1906&limit=10&offset=0"
+            m.blogsApiTask.control = "RUN"
+        end function
+
+        sub onBlogsApiResult()
+            data = m.blogsApiTask.result
+            ' if data <> invalid and data.count() > 0 then
+            if data = invalid then return 
+
+            for i = 0 to data.count() -1
+                item = data[i]
+
+                card = CreateObject("roSGNode", "Blogs")
+                card.imageUrl = item.image
+                card.name = item.name
+                card.role = item.role
+                card.description = item.description
+        end sub
+
+        sub onBlogsClose()
+            if m.blogsPage <> invalid then
+                m.top.removeChild(m.blogsPage)
+                m.blogsPage = invalid
+                m.top.setFocus(true)
+            end if
+        end sub
+
+        function highlightNavItem()
+            for i = 0 to m.navItems.count() - 1
+                if i = m.navIndex then
+                    m.navItems[i].color = "0xFFFFFFFF"
+                else
+                    m.navItems[i].color = "0x000000FF"
+                end if
+            end for
+        end function
+
+        function onKeyEvent(key as String, press as Boolean) as Boolean
+            if press then
+                if key = "right" then
+                    m.navIndex = (m.navIndex + 1) mod m.navItems.count()
+                    highlightNavItem()
+                    return true
+                else if key = "left" then
+                    m.navIndex = (m.navIndex - 1 + m.navItems.count()) mod m.navItems.count()
+                    highlightNavItem()
+                    return true
+                else if key = "down" then
+                    m.scrollY = m.scrollY - m.scrollStep
+                    m.CardItem.translation = [0, m.scrollY]
+                    return true
+                else if key = "up" then
+                    m.scrollY = m.scrollY + m.scrollStep
+                    if m.scrollY > 0 then m.scrollY = 0
+                    m.CardItem.translation = [0, m.scrollY]
+                    return true
+                else if key = "OK" then
+                    if m.navIndex = 1 then
+                        m.blogsPage = m.top.createChild("Blogs")
+                        m.blogsPage.observeField("close", "onBlogsClose")
+                        m.blogsPage.setFocus(true)
+                    end if
+                    return true
+                end if
+            end if
+            return false
+        end function
+        ]]>
+    </script>
+
+</component>

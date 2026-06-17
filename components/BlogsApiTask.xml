@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="BlogsApiTask" extends="Task">
+<interface>
+    <field id="apiUrl" type="string" />
+    <field id="result" type="array" />
+</interface>
+<script type="text/brightscript">
+    <![CDATA[
+        function init()
+            m.top.functionName = "GetBlogs"
+        end function
+
+        function GetBlogs()
+            url = m.top.apiUrl
+            if url - invalid or url = "" then
+                print "Invalid API URL"
+                return
+            end if
+
+            http = CreateObject("roUrlTransfer")
+            http.SetUrl(url)
+            http.setCertificateFile("common:/certs/ca-bundle.crt")
+            http.InitClientCertificates()
+            http.addHeader("Content-Type", "application/json")
+            http.addHeader("Accept", "application/json")
+            response = http.GetToString()
+            if response = invalid or response = "" then
+                print "Failed to get response from API"
+                return
+            end if
+            parsed = ParseJson(response)
+            ' if parsed = invalid then
+            '     print "Failed to parse JSON response"
+            '     return
+            ' end if
+
+            if parsed <> invalid and parsed.IsArray() then
+                m.top.result = parsed
+            end if
+        end function
+    ]]>
+
+</script>
+</component>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="CardItemMain" extends="Group">
+    <children>
+        <Rectangle
+            id="background"
+            color="#003d4d"
+            width="1220"
+            height="300"
+            />
+        <LayoutGroup
+            id="Content"
+            translation="[30, 30]"
+            layoutDirection="vert"
+            itemSpacings="[50]"
+        >
+            <LayoutGroup
+                id="cardContent"
+                layoutDirection="horiz"
+                itemSpacings="[50]"
+            >
+                <LayoutGroup
+                    id="textContent"
+                    layoutDirection="vert"
+                    itemSpacings="[20]"
+                >
+                <Label id="cardTitle" text="Olive Operations on Autopilot" color="0xFFFFFFFF" width="640" wrap="true"/>
+                <Label id="cardDescription" text="Scale your global team without the risk. Olive automates compliance, attendance, and local labor laws, ensuring your operations never miss a beat." color="0xFFFFFFFF" width="640" wrap="true"/>
+                </LayoutGroup>
+                <Poster
+                    id="cardImage"
+                    width="500"
+                    height="250"
+                    uri="pkg:/images/op.png"
+                />
+            </LayoutGroup>
+            <Rectangle
+                id="lineSeparator"
+                color="#a8bd22"
+                width="1990"
+                height="5"
+            />
+            <LayoutGroup
+                id="cardContent2"
+                layoutDirection="horiz"
+                itemSpacings="[50]"
+            >
+                <Poster
+                    id="cardImage2"
+                    width="500"
+                    height="250"
+                    uri="pkg:/images/op.png"
+                />
+                <LayoutGroup
+                    id="textContent2"
+                    layoutDirection="vert"
+                    itemSpacings="[20]"
+                >
+                <Label id="cardTitle2" text="Olive Operations on Autopilot" color="0xFFFFFFFF" width="640" wrap="true"/>
+                <Label id="cardDescription2" text="Scale your global team without the risk. Olive automates compliance, attendance, and local labor laws, ensuring your operations never miss a beat." color="0xFFFFFFFF" width="640" wrap="true"/>
+                </LayoutGroup>
+            </LayoutGroup>
+        </LayoutGroup>
+        
+    </children>
+
+    <script type="text/brightscript">
+        <![CDATA[
+            function init()
+                m.cardTitle = m.top.findNode("cardTitle")
+                m.cardDescription = m.top.findNode("cardDescription")
+                m.cardImage = m.top.findNode("cardImage")
+                m.cardTitle2 = m.top.findNode("cardTitle2")
+                m.cardDescription2 = m.top.findNode("cardDescription2")
+                m.cardImage2 = m.top.findNode("cardImage2")
+            end function
+        ]]>
+    </script>
+</component>
