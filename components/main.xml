@@ -49,6 +49,11 @@
         
             highlightNavItem()
 
+            m.scrollContainerRows = m.top.createChild("Group")
+            m.CardItemRow = m.scrollContainerRows.createChild("CardItemBlogs")
+            m.CardItem.translation = [0, 0]
+
+
             ' m.blogsApiTask = CreateObject("roSGNode", "BlogsApiTask")
             ' m.blogsApiTask.observeField("result", "onBlogsApiResult")
             ' m.blogsApiTask.apiUrl = "https://opencollective.com/babel/members/all.json?TierId=1906&limit=10&offset=0"

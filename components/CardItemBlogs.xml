@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="CardItemBlogs" extends="Group">
+    <children>
+        <Rectangle
+            id="background"
+            color="#003d4d"
+            width="1220"
+            height="300"
+            />
+        <LayoutGroup
+            id="Content"
+            translation="[30, 30]"
+            layoutDirection="vert"
+            itemSpacings="[50]"
+        >
+            <LayoutGroup
+                id="cardContentRow1"
+                layoutDirection="horiz"
+                itemSpacings="[50]"
+            >
+            </LayoutGroup>
+            <Rectangle
+                id="lineSeparator"
+                translation="[-15, 0]"
+                color="#a8bd22"
+                width="1990"
+                height="5"
+            />
+            <LayoutGroup
+                id="cardContentRow2"
+                layoutDirection="horiz"
+                itemSpacings="[50]"
+            >
+            </LayoutGroup>
+        </LayoutGroup>
+        
+    </children>
+
+    <script type="text/brightscript">
+        <![CDATA[
+        ]]>
+    </script>
+</component>
