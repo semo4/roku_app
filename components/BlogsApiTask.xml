@@ -10,34 +10,38 @@
             m.top.functionName = "GetBlogs"
         end function
 
-        function GetBlogs()
+        sub GetBlogs()
             url = m.top.apiUrl
-            if url - invalid or url = "" then
+            if url = invalid or url = "" then
                 print "Invalid API URL"
                 return
             end if
 
             http = CreateObject("roUrlTransfer")
             http.SetUrl(url)
-            http.setCertificateFile("common:/certs/ca-bundle.crt")
+            http.SetCertificatesFile("common:/certs/ca-bundle.crt")
             http.InitClientCertificates()
-            http.addHeader("Content-Type", "application/json")
-            http.addHeader("Accept", "application/json")
+            http.AddHeader("Content-Type", "application/json")
+            http.AddHeader("Accept", "application/json")
             response = http.GetToString()
             if response = invalid or response = "" then
                 print "Failed to get response from API"
                 return
             end if
+            
             parsed = ParseJson(response)
-            ' if parsed = invalid then
-            '     print "Failed to parse JSON response"
-            '     return
-            ' end if
-
-            if parsed <> invalid and parsed.IsArray() then
-                m.top.result = parsed
+            if parsed = invalid then
+                print "Failed to parse JSON response"
+                return
             end if
-        end function
+
+            if Type(parsed) = "roArray" then
+                m.top.result = parsed
+                print "Successfully parsed " + parsed.Count().ToStr() + " items"
+            else
+                print "Parsed data is not an array, it's a: " + Type(parsed)
+            end if
+        end sub
     ]]>
 
 </script>
