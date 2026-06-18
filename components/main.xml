@@ -49,15 +49,15 @@
         
             highlightNavItem()
 
-            m.scrollContainerRows = m.top.createChild("Group")
-            m.CardItemRow = m.scrollContainerRows.createChild("CardItemBlogs")
-            m.CardItem.translation = [0, 0]
+            m.CardItemRow = m.top.createChild("CardItemBlogs")
+            m.CardItemRow.translation = [30, 120]
+            m.CardItemRow.visible = false
+            m.CardItemRow.observeField("close", "onBlogsClose")
 
-
-            ' m.blogsApiTask = CreateObject("roSGNode", "BlogsApiTask")
-            ' m.blogsApiTask.observeField("result", "onBlogsApiResult")
-            ' m.blogsApiTask.apiUrl = "https://opencollective.com/babel/members/all.json?TierId=1906&limit=10&offset=0"
-            ' m.blogsApiTask.control = "RUN"
+            m.blogsApiTask = CreateObject("roSGNode", "BlogsApiTask")
+            m.blogsApiTask.observeField("result", "onBlogsApiResult")
+            m.blogsApiTask.apiUrl = "https://opencollective.com/babel/members/all.json?TierId=1906&limit=10&offset=0"
+            m.blogsApiTask.control = "RUN"
         end function
 
         sub onBlogsApiResult()
@@ -71,20 +71,17 @@
                 item = data[i]
 
                 card = CreateObject("roSGNode", "Blogs")
-                card.imageUrl = item.image
+                card.imgUrl = item.image
                 card.name = item.name
                 card.role = item.role
                 card.description = item.description
-                m.CardItem.appendChild(card)
+                m.CardItemRow.appendChild(card)
             end for
         end sub
 
         sub onBlogsClose()
-            if m.blogsPage <> invalid then
-                m.top.removeChild(m.blogsPage)
-                m.blogsPage = invalid
-                m.top.setFocus(true)
-            end if
+            m.CardItemRow.visible = false
+            m.top.setFocus(true)
         end sub
 
         function highlightNavItem()
@@ -109,6 +106,9 @@
                     return true
                 else if key = "down" then
                     m.scrollY = m.scrollY - m.scrollStep
+                    if m.scrollY < -800 then 
+                        m.scrollY = -800
+                    end if
                     m.CardItem.translation = [0, m.scrollY]
                     return true
                 else if key = "up" then
@@ -118,9 +118,8 @@
                     return true
                 else if key = "OK" then
                     if m.navIndex = 1 then
-                        m.blogsPage = m.top.createChild("Blogs")
-                        m.blogsPage.observeField("close", "onBlogsClose")
-                        m.blogsPage.setFocus(true)
+                        m.CardItemRow.visible = true
+                        m.CardItemRow.setFocus(true)
                     end if
                     return true
                 end if

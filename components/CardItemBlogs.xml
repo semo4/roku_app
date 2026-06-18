@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="CardItemBlogs" extends="Group">
+    <interface>
+        <field id="close" type="boolean" value="false"/>
+    </interface>
     <children>
         <Rectangle
             id="background"
@@ -38,6 +41,13 @@
 
     <script type="text/brightscript">
         <![CDATA[
+        function onKeyEvent(key as String, press as Boolean) as Boolean
+            if press and key = "back" then
+                m.top.close = true
+                return true
+            end if
+            return false
+        end function
         ]]>
     </script>
 </component>
