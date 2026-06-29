@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    BlogsPage.xml
+    Fetches member data from the Open Collective API and renders a
+    scrollable 3-column grid of BlogCard components.
+
+    Exposed interface:
+      scrollY (integer) — set by MainPage to scroll the grid up/down.
+-->
+<component name="BlogsPage" extends="Group">
+
+    <interface>
+        <field id="scrollY" type="integer" value="0" onChange="onScrollChange"/>
+    </interface>
+
+    <children>
+        <!-- ── Background ────────────────────────────────────────── -->
+        <Rectangle color="0x07111EFF" width="1280" height="649"/>
+
+        <!-- ── Page header bar ───────────────────────────────────── -->
+        <Rectangle color="0x0B1E33FF" width="1280" height="64"/>
+        <!-- Green left accent -->
+        <Rectangle color="0x00c996FF" width="4" height="36" translation="[60, 14]"/>
+        <Label id="pageTitle"    text="Blogs"                   translation="[78, 16]"  color="0xFFFFFFFF"/>
+        <Label id="pageSubtitle" text="Community Contributors"  translation="[78, 45]"  color="0x4A90E2FF"/>
+
+        <!-- ── Loading indicator ─────────────────────────────────── -->
+        <Label id="loadingLabel"
+               text="Loading community members..."
+               translation="[60, 130]"
+               color="0x4A90E2FF"/>
+
+        <!-- ── Scrollable cards container ────────────────────────── -->
+        <!-- clippingRect clips child content to the visible window  -->
+        <Group id="cardsScroll"
+               translation="[40, 70]"
+               clippingRect="[0, 0, 1200, 565]">
+            <Group id="cardsGrid"/>
+        </Group>
+
+        <!-- ── Scroll / navigation hint ─────────────────────────── -->
+        <Label id="scrollHint"
+               text="UP / DOWN to scroll   |   LEFT / RIGHT to switch page"
+               translation="[60, 635]"
+               color="0x334455FF"
+               visible="false"/>
+    </children>
+
+    <script type="text/brightscript">
+        <![CDATA[
+
+        function init()
+            m.loadingLabel = m.top.findNode("loadingLabel")
+            m.cardsGrid    = m.top.findNode("cardsGrid")
+            m.scrollHint   = m.top.findNode("scrollHint")
+
+            m.top.findNode("pageTitle").font.size    = 28
+            m.top.findNode("pageSubtitle").font.size = 18
+
+            ' Start fetching data immediately (runs in background Task thread)
+            m.apiTask = CreateObject("roSGNode", "BlogsApiTask")
+            m.apiTask.observeField("result", "onApiResult")
+            m.apiTask.apiUrl = "https://opencollective.com/babel/members/all.json?TierId=1906&limit=10&offset=0"
+            m.apiTask.control = "RUN"
+        end function
+
+        ' ── Called when the API task delivers results ──────────────
+        sub onApiResult()
+            data = m.apiTask.result
+            if data = invalid then
+                m.loadingLabel.text = "Failed to load data. Check your connection."
+                return
+            end if
+
+            m.loadingLabel.visible = false
+            m.scrollHint.visible   = true
+
+            ' Layout constants
+            cardW  = 370
+            cardH  = 260
+            hGap   = 25
+            vGap   = 30
+            cols   = 3
+            startY = 10
+
+            for i = 0 to data.count() - 1
+                item = data[i]
+                col  = i mod cols
+                row  = i \ cols
+                x    = col * (cardW + hGap)
+                y    = startY + row * (cardH + vGap)
+
+                card = m.cardsGrid.createChild("BlogCard")
+                card.translation = [x, y]
+
+                if item.name        <> invalid then card.memberName = item.name
+                if item.role        <> invalid then card.memberRole = item.role
+                if item.image       <> invalid then card.imgUrl     = item.image
+                if item.description <> invalid then card.memberDesc = item.description
+            end for
+        end sub
+
+        ' ── Driven by MainPage when user presses UP / DOWN ─────────
+        sub onScrollChange()
+            m.cardsGrid.translation = [0, m.top.scrollY]
+        end sub
+
+        ]]>
+    </script>
+
+</component>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    BlogCard.xml
+    A single member card rendered inside the BlogsPage grid.
+    Displays profile image (or a lettered placeholder), name, role,
+    and a short description.
+-->
+<component name="BlogCard" extends="Group">
+
+    <interface>
+        <field id="memberName" type="string" value="" onChange="onNameChange"/>
+        <field id="memberRole" type="string" value="" onChange="onRoleChange"/>
+        <field id="memberDesc" type="string" value="" onChange="onDescChange"/>
+        <field id="imgUrl"     type="string" value="" onChange="onImgChange"/>
+    </interface>
+
+    <children>
+        <!-- ── Card background ───────────────────────────────────── -->
+        <Rectangle id="cardBg"    color="0x0D2440FF" width="370" height="260"/>
+        <!-- Top green accent bar -->
+        <Rectangle id="topAccent" color="0x00c996FF" width="370" height="4"/>
+        <!-- Left blue accent bar -->
+        <Rectangle id="sideAccent" color="0x1A6BFFFF" width="4" height="256" translation="[0, 4]"/>
+
+        <!-- ── Image placeholder (shown when no image URL) ───────── -->
+        <Rectangle id="imgPlaceholder"
+                   color="0x1A3050FF"
+                   width="80" height="80"
+                   translation="[14, 14]"/>
+        <Label id="imgInitial"
+               text="?"
+               translation="[40, 36]"
+               color="0x00c996FF"/>
+
+        <!-- ── Profile poster (shown when image URL is set) ──────── -->
+        <Poster id="profileImg"
+                translation="[14, 14]"
+                width="80"
+                height="80"
+                loadDisplayMode="scaleToFit"
+                visible="false"/>
+
+        <!-- ── Text content ──────────────────────────────────────── -->
+        <Label id="nameLabel"
+               translation="[108, 18]"
+               text=""
+               color="0xFFFFFFFF"
+               width="248"
+               wrap="true"/>
+
+        <Label id="roleLabel"
+               translation="[108, 70]"
+               text=""
+               color="0x00c996FF"
+               width="248"
+               wrap="true"/>
+
+        <!-- Horizontal divider -->
+        <Rectangle color="0x1A3050FF" width="342" height="1" translation="[14, 104]"/>
+
+        <Label id="descLabel"
+               translation="[14, 113]"
+               text=""
+               color="0x88AABBFF"
+               width="342"
+               wrap="true"/>
+    </children>
+
+    <script type="text/brightscript">
+        <![CDATA[
+
+        function init()
+            m.profileImg     = m.top.findNode("profileImg")
+            m.nameLabel      = m.top.findNode("nameLabel")
+            m.roleLabel      = m.top.findNode("roleLabel")
+            m.descLabel      = m.top.findNode("descLabel")
+            m.imgPlaceholder = m.top.findNode("imgPlaceholder")
+            m.imgInitial     = m.top.findNode("imgInitial")
+
+            m.nameLabel.font.size  = 22
+            m.roleLabel.font.size  = 16
+            m.descLabel.font.size  = 16
+            m.imgInitial.font.size = 28
+        end function
+
+        sub onNameChange()
+            m.nameLabel.text = m.top.memberName
+            if m.top.memberName.Len() > 0 then
+                m.imgInitial.text = m.top.memberName.Left(1).ToUpper()
+            end if
+        end sub
+
+        sub onRoleChange()
+            ' Turn "HOST_ORGANIZATION" → "HOST ORGANIZATION" for readability
+            m.roleLabel.text = m.top.memberRole.Replace("_", " ")
+        end sub
+
+        sub onDescChange()
+            desc = m.top.memberDesc
+            ' Truncate long descriptions to keep the card tidy
+            if desc.Len() > 110 then desc = desc.Left(107) + "..."
+            m.descLabel.text = desc
+        end sub
+
+        sub onImgChange()
+            if m.top.imgUrl <> "" then
+                m.profileImg.uri         = m.top.imgUrl
+                m.profileImg.visible     = true
+                m.imgPlaceholder.visible = false
+                m.imgInitial.visible     = false
+            else
+                m.profileImg.visible     = false
+                m.imgPlaceholder.visible = true
+                m.imgInitial.visible     = true
+            end if
+        end sub
+
+        ]]>
+    </script>
+
+</component>

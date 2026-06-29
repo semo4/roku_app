@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    LiveVideoPage.xml
+    Plays the HLS live stream from Eyevinn Technology.
+    Auto-starts when MainPage sets active=true, stops on active=false.
+    Fires requestClose when the user presses BACK.
+    Left/Right keys are NOT consumed here so they propagate up to
+    MainPage, letting the nav bar switch pages without leaving video.
+-->
+<component name="LiveVideoPage" extends="Group">
+
+    <interface>
+        <!-- MainPage sets this to true/false to start/stop the stream -->
+        <field id="active"  type="boolean" value="false" onChange="onActiveChange"/>
+        <!-- Set to true when user presses BACK; observed by MainPage -->
+        <field id="requestClose" type="boolean" value="false"/>
+    </interface>
+
+    <children>
+        <!-- ── Black background ──────────────────────────────────── -->
+        <Rectangle color="0x000000FF" width="1280" height="649"/>
+
+        <!-- ── Video node ────────────────────────────────────────── -->
+        <Video id="videoPlayer"
+               width="1280"
+               height="558"
+               translation="[0, 0]"/>
+
+        <!-- ── Bottom info bar ───────────────────────────────────── -->
+        <Rectangle color="0x0B1E33FF" width="1280" height="91" translation="[0, 558]"/>
+        <!-- Green top edge of info bar -->
+        <Rectangle color="0x00c996FF" width="1280" height="3"  translation="[0, 558]"/>
+
+        <!-- Live indicator dot + label -->
+        <Rectangle color="0xFF3344FF" width="12" height="12" translation="[60, 592]"/>
+        <Label id="liveLabel"
+               text="LIVE"
+               translation="[83, 586]"
+               color="0xFF3344FF"/>
+        <Label id="streamTitle"
+               text="OptimumPartners Live Stream"
+               translation="[140, 586]"
+               color="0xFFFFFFFF"/>
+
+        <!-- Stream status (buffering / playing / error) -->
+        <Label id="statusLabel"
+               text="Loading stream..."
+               translation="[60, 621]"
+               color="0x4A90E2FF"/>
+
+        <!-- Controls hint (right-aligned) -->
+        <Label text="OK  pause/resume   |   BACK  return to Home"
+               translation="[740, 621]"
+               color="0x4A90E2FF"/>
+    </children>
+
+    <script type="text/brightscript">
+        <![CDATA[
+
+        function init()
+            m.videoPlayer = m.top.findNode("videoPlayer")
+            m.statusLabel = m.top.findNode("statusLabel")
+            m.liveLabel   = m.top.findNode("liveLabel")
+            m.streamTitle = m.top.findNode("streamTitle")
+
+            m.liveLabel.font.size   = 20
+            m.streamTitle.font.size = 22
+
+            m.videoPlayer.observeField("state", "onVideoStateChange")
+        end function
+
+        ' ── Called when MainPage sets active=true or false ─────────
+        sub onActiveChange()
+            if m.top.active = true then
+                ' Reset the close flag each time the page is activated
+                m.top.requestClose = false
+                startVideo()
+            else
+                stopVideo()
+            end if
+        end sub
+
+        sub startVideo()
+            m.statusLabel.text = "Connecting to stream..."
+            content = CreateObject("roSGNode", "ContentNode")
+            content.url          = "https://maitv-vod.lab.eyevinn.technology/VINN.mp4/master.m3u8"
+            content.streamFormat = "hls"
+            m.videoPlayer.content = content
+            m.videoPlayer.control = "play"
+        end sub
+
+        sub stopVideo()
+            m.videoPlayer.control = "stop"
+            m.statusLabel.text    = "Stream stopped."
+        end sub
+
+        ' ── React to Video node state changes ──────────────────────
+        sub onVideoStateChange()
+            state = m.videoPlayer.state
+            if state = "playing" then
+                m.statusLabel.text = "Live  —  playing"
+            else if state = "buffering" then
+                m.statusLabel.text = "Buffering..."
+            else if state = "error" then
+                m.statusLabel.text = "Stream error. Please try again later."
+            else if state = "stopped" then
+                m.statusLabel.text = "Stream stopped."
+            end if
+        end sub
+
+        ' ── Key handling ───────────────────────────────────────────
+        function onKeyEvent(key as String, press as Boolean) as Boolean
+            if press then
+                if key = "back" then
+                    stopVideo()
+                    m.top.requestClose = true
+                    return true         ' consume — triggers MainPage observer
+                else if key = "OK" then
+                    if m.videoPlayer.state = "playing" then
+                        m.videoPlayer.control = "pause"
+                    else
+                        m.videoPlayer.control = "play"
+                    end if
+                    return true
+                end if
+            end if
+            ' LEFT / RIGHT fall through to MainPage for nav switching
+            return false
+        end function
+
+        ]]>
+    </script>
+
+</component>

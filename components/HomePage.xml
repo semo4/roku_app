@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="HomePage" extends="Group">
+    <children>
+        <!-- ── Full background ────────────────────────────────────── -->
+        <Rectangle color="0x07111EFF" width="1280" height="649"/>
+
+        <!-- ── Hero Section ──────────────────────────────────────── -->
+        <Rectangle color="0x0D2440FF" width="1280" height="300"/>
+
+        <!-- Green vertical accent bar on the left -->
+        <Rectangle color="0x00c996FF" width="5" height="220" translation="[60, 40]"/>
+
+        <Label
+            id="heroTitle"
+            text="Welcome to OptimumPartners"
+            translation="[85, 50]"
+            color="0xFFFFFFFF"
+            width="780"
+            wrap="true"/>
+
+        <Label
+            id="heroSubtitle"
+            text="Your hub for community blogs and live streaming content."
+            translation="[85, 132]"
+            color="0x00c996FF"
+            width="680"
+            wrap="true"/>
+
+        <Label
+            id="heroDesc"
+            text="Navigate with the bar above — explore Blogs from contributors or watch Live Video."
+            translation="[85, 205]"
+            color="0x88AABBFF"
+            width="740"
+            wrap="true"/>
+
+        <!-- ── Feature Cards ─────────────────────────────────────── -->
+
+        <!-- Card 1: Blogs (green accent) -->
+        <Rectangle color="0x0D2440FF" width="370" height="220" translation="[60,  330]"/>
+        <Rectangle color="0x00c996FF" width="370" height="4"   translation="[60,  330]"/>
+        <Label id="card1Title" text="Blogs"     translation="[90, 354]" color="0xFFFFFFFF"/>
+        <Label
+            text="Explore insights and stories from the global Open Collective contributor community."
+            translation="[90, 398]"
+            color="0x88AABBFF"
+            width="310"
+            wrap="true"/>
+
+        <!-- Card 2: Live Video (blue accent) -->
+        <Rectangle color="0x0D2440FF" width="370" height="220" translation="[475, 330]"/>
+        <Rectangle color="0x1A6BFFFF" width="370" height="4"   translation="[475, 330]"/>
+        <Label id="card2Title" text="Live Video" translation="[505, 354]" color="0xFFFFFFFF"/>
+        <Label
+            text="Stream a live HLS video powered by Eyevinn Technology's open-source media platform."
+            translation="[505, 398]"
+            color="0x88AABBFF"
+            width="310"
+            wrap="true"/>
+
+        <!-- Card 3: Community (green accent) -->
+        <Rectangle color="0x0D2440FF" width="370" height="220" translation="[890, 330]"/>
+        <Rectangle color="0x00c996FF" width="370" height="4"   translation="[890, 330]"/>
+        <Label id="card3Title" text="Community" translation="[920, 354]" color="0xFFFFFFFF"/>
+        <Label
+            text="Powered by Open Collective — connecting open-source projects with their backers."
+            translation="[920, 398]"
+            color="0x88AABBFF"
+            width="310"
+            wrap="true"/>
+
+        <!-- ── Navigation hint ───────────────────────────────────── -->
+        <Label
+            text="Press RIGHT to navigate   |   LEFT to go back"
+            translation="[430, 615]"
+            color="0x4A90E2FF"/>
+    </children>
+
+    <script type="text/brightscript">
+        <![CDATA[
+
+        function init()
+            m.top.findNode("heroTitle").font.size    = 40
+            m.top.findNode("heroSubtitle").font.size = 24
+            m.top.findNode("heroDesc").font.size     = 20
+            m.top.findNode("card1Title").font.size   = 26
+            m.top.findNode("card2Title").font.size   = 26
+            m.top.findNode("card3Title").font.size   = 26
+        end function
+
+        ]]>
+    </script>
+
+</component>

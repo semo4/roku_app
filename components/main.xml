@@ -1,131 +1,139 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="MainPage" extends="Scene">
     <children>
+        <!-- ── NavBar Background ──────────────────────────────────── -->
         <Rectangle
-            translation="[30,30]"
-            id="backgroundBottom"
+            id="navBg"
+            color="0x0B1E33FF"
+            width="1280"
+            height="68"/>
+
+        <!-- Green accent line below the nav bar -->
+        <Rectangle
+            id="navLine"
             color="0x00c996FF"
-            width="1220"
-            height="70"
-            opacity="0.5"
-            />
+            width="1280"
+            height="3"
+            translation="[0, 68]"/>
+
+        <!-- Nav items: HOME · BLOGS · LIVE VIDEO -->
         <LayoutGroup
-            id="navBar"
-            translation="[70, 50]"
+            id="navGroup"
+            translation="[60, 14]"
             layoutDirection="horiz"
-            itemSpacings="[40]"
-        >
-            <Label id="home" text="Home" color="0xFFFFFFFF"/>
-            <Label id="blogs" text="Blogs" color="0x000000FF"/>
-            <Label id="youtube" text="YouTube" color="0x000000FF"/>
-        
+            itemSpacings="[80]">
+            <Label id="navHome"  text="HOME"       color="0x00c996FF"/>
+            <Label id="navBlogs" text="BLOGS"      color="0x4A90E2FF"/>
+            <Label id="navLive"  text="LIVE VIDEO" color="0x4A90E2FF"/>
         </LayoutGroup>
     </children>
+
     <script type="text/brightscript">
         <![CDATA[
-            
-        function init()
-            m.navIndex = 0
-            m.top.setFocus(true)
-            m.navItems = [
-                m.top.findNode("home"),
-                m.top.findNode("blogs"),
-                m.top.findNode("youtube")
-            ]
 
-            for each item in m.navItems
-                item.font.size = 26
+        function init()
+            m.top.backgroundColor = "0x07111EFF"
+            m.navIndex    = 0
+            m.blogsScrollY = 0
+            m.top.setFocus(true)
+
+            ' Collect nav label references and set font size
+            m.navItems = [
+                m.top.findNode("navHome"),
+                m.top.findNode("navBlogs"),
+                m.top.findNode("navLive")
+            ]
+            for each lbl in m.navItems
+                lbl.font.size = 26
             end for
 
-            m.scrollContainer = m.top.createChild("Group")
-            m.scrollContainer.translation = [30, 120]
-            m.scrollContainer.clippingRect = [0, 0, 1220, 960]
+            ' ── Create the three pages below the nav bar ──────────
+            m.homePage = m.top.createChild("HomePage")
+            m.homePage.translation = [0, 71]
+            m.homePage.visible = true
 
-            m.CardItem = m.scrollContainer.createChild("CardItemMain")
-            m.CardItem.translation = [0, 0]
+            m.blogsPage = m.top.createChild("BlogsPage")
+            m.blogsPage.translation = [0, 71]
+            m.blogsPage.visible = false
 
-            m.scrollY = 0
-            m.scrollStep = 80
-        
-            highlightNavItem()
+            m.livePage = m.top.createChild("LiveVideoPage")
+            m.livePage.translation = [0, 71]
+            m.livePage.visible = false
+            m.livePage.observeField("requestClose", "onLiveClose")
 
-            m.CardItemRow = m.top.createChild("CardItemBlogs")
-            m.CardItemRow.translation = [30, 120]
-            m.CardItemRow.visible = false
-            m.CardItemRow.observeField("close", "onBlogsClose")
-
-            m.blogsApiTask = CreateObject("roSGNode", "BlogsApiTask")
-            m.blogsApiTask.observeField("result", "onBlogsApiResult")
-            m.blogsApiTask.apiUrl = "https://opencollective.com/babel/members/all.json?TierId=1906&limit=10&offset=0"
-            m.blogsApiTask.control = "RUN"
+            m.pages = [m.homePage, m.blogsPage, m.livePage]
+            updateNav()
         end function
 
-        sub onBlogsApiResult()
-            data = m.blogsApiTask.result
-            ' if data <> invalid and data.count() > 0 then
-            if data = invalid then 
-                return
-            end if
-
-            for i = 0 to data.count() -1
-                item = data[i]
-
-                card = CreateObject("roSGNode", "Blogs")
-                card.imgUrl = item.image
-                card.name = item.name
-                card.role = item.role
-                card.description = item.description
-                m.CardItemRow.appendChild(card)
-            end for
-        end sub
-
-        sub onBlogsClose()
-            m.CardItemRow.visible = false
-            m.top.setFocus(true)
-        end sub
-
-        function highlightNavItem()
+        ' ── Highlight the active nav label ────────────────────────
+        sub updateNav()
             for i = 0 to m.navItems.count() - 1
                 if i = m.navIndex then
-                    m.navItems[i].color = "0xFFFFFFFF"
+                    m.navItems[i].color = "0x00c996FF"
                 else
-                    m.navItems[i].color = "0x000000FF"
+                    m.navItems[i].color = "0x4A90E2FF"
                 end if
             end for
-        end function
+        end sub
 
-        function onKeyEvent(key as String, press as Boolean) as Boolean
-            if press then
-                if key = "right" then
-                    m.navIndex = (m.navIndex + 1) mod m.navItems.count()
-                    highlightNavItem()
-                    return true
-                else if key = "left" then
-                    m.navIndex = (m.navIndex - 1 + m.navItems.count()) mod m.navItems.count()
-                    highlightNavItem()
-                    return true
-                else if key = "down" then
-                    m.scrollY = m.scrollY - m.scrollStep
-                    if m.scrollY < -800 then 
-                        m.scrollY = -800
-                    end if
-                    m.CardItem.translation = [0, m.scrollY]
-                    return true
-                else if key = "up" then
-                    m.scrollY = m.scrollY + m.scrollStep
-                    if m.scrollY > 0 then m.scrollY = 0
-                    m.CardItem.translation = [0, m.scrollY]
-                    return true
-                else if key = "OK" then
-                    if m.navIndex = 1 then
-                        m.CardItemRow.visible = true
-                        m.CardItemRow.setFocus(true)
-                    end if
-                    return true
-                end if
+        ' ── Switch to a page by index (0=Home, 1=Blogs, 2=Live) ──
+        sub showPage(index as Integer)
+            if index = m.navIndex then return
+
+            ' Stop live video when leaving that page
+            if m.navIndex = 2 then
+                m.livePage.active = false
             end if
+
+            ' Show only the requested page
+            for i = 0 to m.pages.count() - 1
+                m.pages[i].visible = (i = index)
+            end for
+
+            m.navIndex = index
+            updateNav()
+
+            if index = 2 then
+                ' Activate & focus the live video page
+                m.livePage.active = true
+                m.livePage.setFocus(true)
+            else
+                m.top.setFocus(true)
+            end if
+        end sub
+
+        ' ── Called when LiveVideoPage fires requestClose ──────────
+        sub onLiveClose()
+            if m.livePage.requestClose = true and m.navIndex = 2 then
+                showPage(0)
+            end if
+        end sub
+
+        ' ── Remote-control key handling ───────────────────────────
+        function onKeyEvent(key as String, press as Boolean) as Boolean
+            if not press then return false
+
+            if key = "right" and m.navIndex < 2 then
+                showPage(m.navIndex + 1)
+                return true
+            else if key = "left" and m.navIndex > 0 then
+                showPage(m.navIndex - 1)
+                return true
+            else if key = "down" and m.navIndex = 1 then
+                m.blogsScrollY = m.blogsScrollY - 130
+                if m.blogsScrollY < -620 then m.blogsScrollY = -620
+                m.blogsPage.scrollY = m.blogsScrollY
+                return true
+            else if key = "up" and m.navIndex = 1 then
+                m.blogsScrollY = m.blogsScrollY + 130
+                if m.blogsScrollY > 0 then m.blogsScrollY = 0
+                m.blogsPage.scrollY = m.blogsScrollY
+                return true
+            end if
+
             return false
         end function
+
         ]]>
     </script>
 
