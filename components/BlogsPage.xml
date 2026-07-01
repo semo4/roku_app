@@ -65,7 +65,7 @@
         end function
 
         ' ── Called when the API task delivers results ──────────────
-        sub onApiResult()
+        sub onApiResult() As Void
             data = m.apiTask.result
             if data = invalid then
                 m.loadingLabel.text = "Failed to load data. Check your connection."

@@ -83,7 +83,7 @@
             m.imgInitial.font.size = 28
         end function
 
-        sub onNameChange()
+        sub onNameChange() As Void
             m.nameLabel.text = m.top.memberName
             if m.top.memberName.Len() > 0 then
                 m.imgInitial.text = m.top.memberName.Left(1).ToUpper()

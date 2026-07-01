@@ -22,7 +22,7 @@
             translation="[60, 14]"
             layoutDirection="horiz"
             itemSpacings="[80]">
-            <Label id="navHome"  text="HOME"       color="0x00c996FF"/>
+            <Label id="navHome"  text="HOME"       color="0x4A90E2FF"/>
             <Label id="navBlogs" text="BLOGS"      color="0x4A90E2FF"/>
             <Label id="navLive"  text="LIVE VIDEO" color="0x4A90E2FF"/>
         </LayoutGroup>
@@ -35,7 +35,10 @@
             m.top.backgroundColor = "0x07111EFF"
             m.navIndex    = 0
             m.blogsScrollY = 0
-            m.top.setFocus(true)
+            
+            ' FIX 1: Set focus to the LayoutGroup containing nav items
+            ' This allows the nav items to receive focus
+            m.top.findNode("navGroup").setFocus(true)
 
             ' Collect nav label references and set font size
             m.navItems = [
@@ -45,6 +48,8 @@
             ]
             for each lbl in m.navItems
                 lbl.font.size = 26
+                ' FIX 2: Make nav labels focusable so they can receive focus
+                lbl.focusable = true
             end for
 
             ' ── Create the three pages below the nav bar ──────────
@@ -93,12 +98,34 @@
             m.navIndex = index
             updateNav()
 
+            ' FIX 3: Set focus differently for each page type
             if index = 2 then
                 ' Activate & focus the live video page
                 m.livePage.active = true
                 m.livePage.setFocus(true)
+            else if index = 0 then
+                ' For Home page, find a focusable element or set to nav
+                if m.homePage.hasFocus() = false then
+                    ' Try to find a focusable element in home page
+                    homeContent = m.homePage.findNode("someFocusableElement")
+                    if homeContent <> invalid then
+                        homeContent.setFocus(true)
+                    else
+                        ' If no focusable element, focus the nav group
+                        m.top.findNode("navGroup").setFocus(true)
+                    end if
+                end if
+            else if index = 1 then
+                ' For Blogs page, focus a blog item or nav
+                blogContent = m.blogsPage.findNode("blogList")  ' Adjust this to your actual blog list node
+                if blogContent <> invalid then
+                    blogContent.setFocus(true)
+                else
+                    m.top.findNode("navGroup").setFocus(true)
+                end if
             else
-                m.top.setFocus(true)
+                ' Fallback: focus the nav group
+                m.top.findNode("navGroup").setFocus(true)
             end if
         end sub
 
@@ -113,6 +140,8 @@
         function onKeyEvent(key as String, press as Boolean) as Boolean
             if not press then return false
 
+            ' FIX 4: Handle navigation only if focus is on the nav group
+            ' or if we're in a state where we should handle page switching
             if key = "right" and m.navIndex < 2 then
                 showPage(m.navIndex + 1)
                 return true
